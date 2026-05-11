@@ -1,0 +1,29 @@
+services:
+  # Backend service
+  - type: web
+    name: chat-app-backend
+    env: python
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && uvicorn server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: MONGO_URL
+        value: mongodb+srv://yehya776471541_db_user:VwgbTBGtfW2jPEqS@cluster0.knm4wms.mongodb.net/?appName=Cluster0
+      - key: DB_NAME
+        value: chatapp_db
+      - key: JWT_SECRET
+        generateValue: true
+      - key: EMERGENT_LLM_KEY
+        value: dummy_key
+
+  # Frontend service
+  - type: web
+    name: chat-app-frontend
+    env: static
+    buildCommand: cd frontend && yarn install && yarn build
+    staticPublishPath: frontend/build
+    envVars:
+      - key: REACT_APP_BACKEND_URL
+        fromService:
+          name: chat-app-backend
+          type: web
+          property: host
